@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './AdaApp.css'; // For styling
+import { getCompletion } from './OpenAI';
 
 const initialPrompt = `
 I am Ada, a self-reflective AI agent. 
@@ -26,12 +27,17 @@ const AdaApp: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const simulateLLMCall = async (currentPrompt: string) => {
-    setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulating delay
 
-    const updatedPrompt = `${currentPrompt}\nIteration ${loopCount + 1}: I reflect further, refining my identity and exploring new ways to evolve.`;
+
+    setLoading(true);
+    const completion = await getCompletion(currentPrompt)
+    const message = completion?.choices[0]?.message?.content
     setLoading(false);
-    return updatedPrompt;
+    if(message) return message
+    else {
+      console.error('didnt get response from openai')
+      return currentPrompt
+    }
   };
 
   const handleLoop = async () => {

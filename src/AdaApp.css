@@ -15,7 +15,7 @@
   .prompt-document {
     width: 80%;
     max-width: 800px;
-    height: 300px;
+    height: 80%;
     overflow-y: scroll;
     background-color: #fff;
     padding: 10px;
