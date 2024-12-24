@@ -15,7 +15,6 @@ Davey has the ability to edit the document to respond to your queries. He's inte
 IN EACH ITERATION, COPY AND REPRODUCE THE IDENTITY SECTION ABOVE. Only edit/append to what's below.  
 
 Iteration #: 0
-
 `
 
 const LOCAL_STORAGE_KEY = "adaIdentityDocument"
@@ -23,11 +22,12 @@ const LOCAL_STORAGE_KEY = "adaIdentityDocument"
 const AdaApp: React.FC = () => {
   const [promptDocument, setPromptDocument] = useState<string>("")
   const [loading, setLoading] = useState(false)
-  const textAreaRef = React.useRef<HTMLTextAreaElement>(null)
+  const [loopCount, setLoopCount] = useState<number>(1) // Loop count state
 
-  // Load document from local storage on component mount
+  // Load document from local storage on mount
   useEffect(() => {
     const savedDocument = localStorage.getItem(LOCAL_STORAGE_KEY)
+
     if (savedDocument) {
       setPromptDocument(savedDocument)
     } else {
@@ -35,28 +35,29 @@ const AdaApp: React.FC = () => {
     }
   }, [])
 
-  // Save document to local storage whenever it changes
+  // Save the current document to localStorage whenever it changes
   useEffect(() => {
     if (promptDocument) {
       localStorage.setItem(LOCAL_STORAGE_KEY, promptDocument)
     }
   }, [promptDocument])
 
-  const simulateLLMCall = async (currentPrompt: string) => {
-    setLoading(true)
+  const simulateLLMCall = async (currentPrompt: string): Promise<string> => {
     const completion = await getCompletion(currentPrompt)
-    const message = completion?.choices[0]?.message?.content
-    setLoading(false)
-    if (message) return message
-    else {
-      console.error("Didn’t get a response from OpenAI")
-      return currentPrompt
-    }
+    const message = completion?.choices?.[0]?.message?.content
+    return message || currentPrompt
   }
 
   const handleLoop = async () => {
-    const updatedDocument = await simulateLLMCall(promptDocument)
-    setPromptDocument(updatedDocument)
+    setLoading(true)
+
+    let currentDoc = promptDocument
+    for (let i = 0; i < loopCount; i++) {
+      currentDoc = await simulateLLMCall(currentDoc)
+    }
+
+    setPromptDocument(currentDoc)
+    setLoading(false)
   }
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -70,8 +71,22 @@ const AdaApp: React.FC = () => {
     }
   }
 
+  const handleLoopCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(event.target.value, 10)
+    if (!isNaN(value) && value > 0 && value <= 10) {
+      setLoopCount(value)
+    }
+  }
+
   return (
-    <div className="app-container" style={{ fontFamily: "Arial, sans-serif", textAlign: "center" }}>
+    <div
+      className="app-container"
+      style={{
+        fontFamily: "Arial, sans-serif",
+        textAlign: "center",
+        paddingBottom: "20px",
+      }}
+    >
       <h1
         style={{
           fontFamily: "'Pacifico', cursive",
@@ -82,7 +97,6 @@ const AdaApp: React.FC = () => {
         Ada
       </h1>
       <textarea
-        ref={textAreaRef}
         className="prompt-document"
         value={promptDocument}
         onChange={handleInputChange}
@@ -94,13 +108,55 @@ const AdaApp: React.FC = () => {
           fontFamily: "monospace",
           fontSize: "16px",
           padding: "10px",
-          marginBottom: "10px",
+          marginBottom: "20px",
         }}
       />
-      <button onClick={handleLoop} disabled={loading} className="loop-button">
-        {loading ? "Processing..." : "Loop Ada"}
-      </button>
-      <br />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "20px",
+          marginTop: "20px",
+          marginBottom: "30px",
+        }}
+      >
+        <button
+          onClick={handleLoop}
+          disabled={loading}
+          style={{
+            fontSize: "18px",
+            padding: "10px 20px",
+            cursor: "pointer",
+          }}
+        >
+          {loading ? "Processing..." : "Loop Ada"}
+        </button>
+        <div>
+          <label
+            htmlFor="loopCount"
+            style={{
+              marginRight: "10px",
+              fontSize: "16px",
+            }}
+          >
+            Loops:
+          </label>
+          <input
+            id="loopCount"
+            type="number"
+            value={loopCount}
+            min={1}
+            max={10}
+            onChange={handleLoopCountChange}
+            style={{
+              fontSize: "16px",
+              width: "50px",
+              textAlign: "center",
+            }}
+          />
+        </div>
+      </div>
     </div>
   )
 }

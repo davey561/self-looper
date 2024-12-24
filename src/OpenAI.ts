@@ -5,7 +5,7 @@ const openai = new OpenAI({ dangerouslyAllowBrowser: true, apiKey: apiKey })
 
 export const getCompletion = async (content: string) => {
   const completion = await openai.chat.completions.create({
-    model: "o1",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
