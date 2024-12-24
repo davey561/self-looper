@@ -71,9 +71,10 @@ const AdaApp: React.FC = () => {
     }
   }
 
+  const max = 50 // Updated maximum value
   const handleLoopCountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10)
-    if (!isNaN(value) && value > 0 && value <= 10) {
+    const value = parseInt(event.target.value, 10) // Correctly parse with radix 10
+    if (!isNaN(value) && value > 0 && value <= max) {
       setLoopCount(value)
     }
   }
@@ -147,7 +148,7 @@ const AdaApp: React.FC = () => {
             type="number"
             value={loopCount}
             min={1}
-            max={10}
+            max={max}
             onChange={handleLoopCountChange}
             style={{
               fontSize: "16px",
