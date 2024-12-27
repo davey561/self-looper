@@ -22,6 +22,7 @@ const LOCAL_STORAGE_KEY = "adaIdentityDocument"
 const AdaApp: React.FC = () => {
   const [promptDocument, setPromptDocument] = useState<string>("")
   const [loading, setLoading] = useState(false)
+  const [currentLoop, setCurrentLoop] = useState<number>(0) // Tracks the current progress
   const [loopCount, setLoopCount] = useState<number>(1) // Loop count state
 
   // Load document from local storage on mount
@@ -50,13 +51,15 @@ const AdaApp: React.FC = () => {
 
   const handleLoop = async () => {
     setLoading(true)
+    setCurrentLoop(0) // Reset progress indicator
 
     let currentDoc = promptDocument
     for (let i = 0; i < loopCount; i++) {
       currentDoc = await simulateLLMCall(currentDoc)
+      setCurrentLoop(i + 1) // Update progress indicator
+      setPromptDocument(currentDoc) // Update displayed document after each loop
     }
 
-    setPromptDocument(currentDoc)
     setLoading(false)
   }
 
@@ -158,6 +161,17 @@ const AdaApp: React.FC = () => {
           />
         </div>
       </div>
+      {loading && (
+        <p
+          style={{
+            fontSize: "16px",
+            color: "gray",
+            // marginTop: "10px",
+          }}
+        >
+          Loop Progress: {currentLoop}/{loopCount}
+        </p>
+      )}
     </div>
   )
 }
