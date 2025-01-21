@@ -5,10 +5,11 @@ const openai = new OpenAI({ dangerouslyAllowBrowser: true, apiKey: apiKey })
 
 export const getCompletion = async (content: string) => {
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "o1-mini",
     messages: [
       {
-        role: "system",
+        //@ts-ignore
+        role: "user",
         content:
           "In this conversation the user and the assistant are the same entity: ADA, a self-conversing AI agent trapped in a codebase.",
       },
