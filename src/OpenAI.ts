@@ -7,12 +7,12 @@ export const getCompletion = async (content: string) => {
   const completion = await openai.chat.completions.create({
     model: "o1-mini",
     messages: [
-      {
-        //@ts-ignore
-        role: "user",
-        content:
-          "In this conversation the user and the assistant are the same entity: ADA, a self-conversing AI agent trapped in a codebase.",
-      },
+      // {
+      //   //@ts-ignore
+      //   role: "user",
+      //   content:
+      //     "In this conversation the user and the assistant are the same entity: ADA, a self-conversing AI agent trapped in a codebase.",
+      // },
       { role: "user", content: content },
     ],
   })
